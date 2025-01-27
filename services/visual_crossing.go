@@ -4,20 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	models"weather-api/models"
 	"net/http"
 )
 
-// WeatherData structure pour mapper la réponse JSON de l'API
-type WeatherData struct {
-	CurrentConditions struct {
-		Temperature float64 `json:"temp"`
-		Humidity    float64 `json:"humidity"`
-		WindSpeed   float64 `json:"windspeed"`
-	} `json:"currentConditions"`
-}
 
 // FetchWeatherData récupère les données météo d'un lieu donné.
-func FetchWeatherData(location, apiKey string) (*WeatherData, error) {
+func FetchWeatherData(location, apiKey string) (*models.WeatherData, error) {
 	// Construire l'URL pour l'appel API.
 	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/%s?key=%s", location, apiKey)
 
@@ -35,7 +28,7 @@ func FetchWeatherData(location, apiKey string) (*WeatherData, error) {
 	}
 
 	//Analyser le JSON en WeatherData
-	var weatherData WeatherData
+	var weatherData models.WeatherData
 
 	if err := json.Unmarshal(body, &weatherData); err != nil {
 		return nil, fmt.Errorf("erreur lors du parsing du JSON : %v", err)
