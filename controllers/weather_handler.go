@@ -5,49 +5,47 @@ import (
 	"net/http"
 	"time"
 	"weather-api/cache"
-	"weather-api/models"
+	"weather-api/configs"
 	"weather-api/services"
 
 	"github.com/gin-gonic/gin"
 )
 
-func LocationWeatherHandler(c *gin.Context) {
+// LocationWeatherDatasHandler traite la demande des données météo pour une localisation donnée
+func LocationWeatherDatasHandler(c *gin.Context) {
 	location := c.Query("location")
+
 	if location == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "La localisation est requise"})
+		c.JSON(http.StatusBadRequest, gin.H{"erreur": "localisation requise"})
 		return
 	}
 
-	// Essayer de récupérer les données du cache
+	//Vérifier le cache
 	weatherDatasFromCache, err := cache.GetDatasFromCache(location)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la récupération des données"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "erreur lors de la récupération des données du cache"})
+		return
+	}
+	//Si les données sont présentes
+	if weatherDatasFromCache != nil {
+		c.JSON(http.StatusOK, weatherDatasFromCache)
 		return
 	}
 
-	if weatherDatasFromCache != "" {
-		var locationWeatherDatas models.WeatherData
-		err := json.Unmarshal([]byte(weatherDatasFromCache), &locationWeatherDatas)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors du formatage des données du cache"})
-		} else {
-			c.JSON(http.StatusOK, locationWeatherDatas)
-		}
-		return
-	}
-
-	// Si les données ne sont pas dans le cache, appeler l'API de Visual Crossing pour récupérer les données
+	//Si elles sont absentes, appeler l'api de visual crossing
 	weatherDatasFromVisualCrossing, err := services.FetchWeatherData(location, "MY_API_KEY")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de l'appel à l'API Visual Crossing"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "erreur lors de la récupération des données de l'API Visual Crossing"})
 		return
 	}
 
-	//Sauvegarder les données dans le cache
-	weatherDatasJSON, _ := json.Marshal(&weatherDatasFromVisualCrossing)
-	cache.SaveDatasInCache(location, string(weatherDatasJSON), 15*time.Minute)
+	//Les save dans le cache
+	go func() {
+		key := "weather:" + location
+		dataJSON, _ := json.Marshal(weatherDatasFromVisualCrossing)
+		configs.RedisClient.Set(configs.Ctx, key, dataJSON, 15*time.Minute)
+	}()
 
-	//Répondre au client en servant les données
+	//Répondre
 	c.JSON(http.StatusOK, weatherDatasFromVisualCrossing)
-
 }

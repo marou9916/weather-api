@@ -6,10 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRoutes() *gin.Engine {
 	router := gin.Default()
 
-	router.GET("/", controllers.LocationWeatherHandler)
+	router.GET("/", controllers.LocationWeatherDatasHandler)
 
 	return router
 }

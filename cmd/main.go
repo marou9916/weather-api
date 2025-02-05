@@ -3,7 +3,7 @@ package main
 import "weather-api/routes"
 
 func main() {
-	router := routes.SetupRouter()
+	router := routes.SetupRoutes()
 
 	router.Run(":8080")
 }
