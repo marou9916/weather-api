@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 	"weather-api/cache"
-	"weather-api/configs"
 	"weather-api/services"
 
 	"github.com/gin-gonic/gin"
@@ -33,18 +31,18 @@ func LocationWeatherDatasHandler(c *gin.Context) {
 	}
 
 	//Si elles sont absentes, appeler l'api de visual crossing
-	weatherDatasFromVisualCrossing, err := services.FetchWeatherData(location, "MY_API_KEY")
+	weatherDatasFromVisualCrossing, err := services.FetchWeatherData(location)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "erreur lors de la récupération des données de l'API Visual Crossing"})
 		return
 	}
 
 	//Les save dans le cache
-	go func() {
-		key := "weather:" + location
-		dataJSON, _ := json.Marshal(weatherDatasFromVisualCrossing)
-		configs.RedisClient.Set(configs.Ctx, key, dataJSON, 15*time.Minute)
-	}()
+	err = cache.SaveDatasInCache(location, weatherDatasFromVisualCrossing, 15*time.Minute)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
 
 	//Répondre
 	c.JSON(http.StatusOK, weatherDatasFromVisualCrossing)

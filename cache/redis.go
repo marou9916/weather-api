@@ -33,6 +33,19 @@ func GetDatasFromCache(location string) (*models.WeatherData, error) {
 	return &locationWeatherDatas, nil
 }
 
-func SaveDatasInCache(apiKey string, value string, expiration time.Duration) {
+// SaveDatasInCache stocke les données météo dans Redis sous format JSON avec une expiration
+func SaveDatasInCache(location string, value *models.WeatherData, expiration time.Duration) error {
+	key := fmt.Sprintf("weather:%s", location)
 
+	weatherDatasJSON, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("erreur lors de la sauvegarde des données dans le cache: %v", err)
+	}
+
+	err = configs.RedisClient.Set(configs.Ctx, key, weatherDatasJSON, expiration).Err()
+	if err != nil {
+		return fmt.Errorf("erreur lors de l'enregistrement des données dans le cache: %v", err) 
+	}
+
+	return nil
 }
