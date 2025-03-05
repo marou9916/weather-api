@@ -45,15 +45,24 @@ Ce projet est une API météo simple développée en Go. Elle récupère les don
 ## Structure du projet
 ```
 .
+├── cache
+│   └── redis.go          # Gestion de Redis, cache et expiration des données
 ├── cmd
-│   └── main.go          # Point d'entrée de l'application
-├── pkg
-│   ├── controllers      # Gestion des endpoints
-│   ├── cache            # Gestion de Redis et expiration des données
-│   ├── weather          # Intégration de l'API Visual Crossing
-│   └── routes           # Configuration des routes
-├── go.mod               # Dépendances du projet
-├── README.md            # Documentation du projet
+│   └── main.go           # Point d'entrée de l'application
+├── configs
+│   └── redis.go          # Configuration des paramètres Redis
+├── controllers
+│   └── weather_handler.go # Gestion des endpoints relatifs à la météo
+├── docs
+│   └── README.md         # Documentation du projet
+├── go.mod                # Dépendances du projet
+├── go.sum                # Vérification des dépendances
+├── models
+│   └── weatherdata.go    # Modèle des données météo
+├── routes
+│   └── router.go         # Configuration des routes de l'API
+└── services
+    └── visual_crossing.go # Intégration de l'API Visual Crossing pour récupérer les données météo
 ```
 
 ## Compétences renforcées
