@@ -73,8 +73,6 @@ Mise en place d'un cache avec Redis et gestion de l'expiration.
 
 Normalisation des données pour éviter les erreurs de casse dans Redis.
 
-Documentation API avec Swagger.
-
 ## Améliorations futures
 
 Ajouter des tests unitaires.
