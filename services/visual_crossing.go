@@ -24,7 +24,7 @@ func FetchWeatherData(location string) (*models.WeatherData, error) {
 	}
 
 	//Construire l'url
-	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/%s?key=%s", location, apiKey)
+	url := fmt.Sprintf("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/%s?unitGroup=metric&key=%s", location, apiKey)
 
 	//Faire la requête http
 	resp, err := http.Get(url)

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 	"time"
 	"weather-api/cache"
 	"weather-api/services"
@@ -11,7 +12,8 @@ import (
 
 // LocationWeatherDatasHandler traite la demande des données météo pour une localisation donnée
 func LocationWeatherDatasHandler(c *gin.Context) {
-	location := c.Query("location")
+	locationFromURL := c.Query("location")
+	location := strings.ToUpper(locationFromURL)
 
 	if location == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"erreur": "localisation requise"})
@@ -26,7 +28,7 @@ func LocationWeatherDatasHandler(c *gin.Context) {
 	}
 	//Si les données sont présentes
 	if weatherDatasFromCache != nil {
-		c.JSON(http.StatusOK, weatherDatasFromCache)
+		c.JSON(http.StatusOK, gin.H{"Données récupérées depuis le cache": weatherDatasFromCache})
 		return
 	}
 
@@ -38,7 +40,7 @@ func LocationWeatherDatasHandler(c *gin.Context) {
 	}
 
 	//Les save dans le cache
-	err = cache.SaveDatasInCache(location, weatherDatasFromVisualCrossing, 15*time.Minute)
+	err = cache.SaveDatasInCache(location, weatherDatasFromVisualCrossing, 10*time.Second)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
