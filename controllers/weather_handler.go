@@ -13,6 +13,7 @@ import (
 // LocationWeatherDatasHandler traite la demande des données météo pour une localisation donnée
 func LocationWeatherDatasHandler(c *gin.Context) {
 	locationFromURL := c.Query("location")
+
 	location := strings.ToUpper(locationFromURL)
 
 	if location == "" {
